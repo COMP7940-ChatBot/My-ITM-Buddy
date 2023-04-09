@@ -18,6 +18,7 @@ from config import Development as Config
 #[telegram.ext.Handler]("http://python-telegrambot.readthedocs.io/en/latest/telegram.ext.messagehandler.html")
 
 # Load your token and create an Updater for your Bot
+def main():
     config = configparser.ConfigParser()
     #config.read('config.ini')
     #config.read('config.py')
