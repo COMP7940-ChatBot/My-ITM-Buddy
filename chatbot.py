@@ -2,14 +2,61 @@ from telegram import Update, Bot, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import configparser
 import logging
-import redis
+#import redis
+import pymysql
+import os 
+import sys
+#global redis1
+from config import Development as Config
+  
 
-def main():
+
+#[telegram.ext.Updater]("https://python-telegrambot.readthedocs.io/en/latest/telegram.ext.updater.html#telegram.ext.updater.Updater")
+
+#[telegram.ext.Dispatcher]("https://pythontelegrambot.readthedocs.io/en/latest/telegram.ext.dispatcher.html#telegram.ext.Dispatcher")
+
+#[telegram.ext.Handler]("http://python-telegrambot.readthedocs.io/en/latest/telegram.ext.messagehandler.html")
+
+# Load your token and create an Updater for your Bot
     config = configparser.ConfigParser()
-    config.read('config.ini')
-    updater = Updater(token=config['TELEGRAM']['ACCESS_TOKEN'], use_context=True)
+    #config.read('config.ini')
+    #config.read('config.py')
+    #updater = Updater(token=(Config.API_KEY), use_context=True)
+    updater = Updater(Config.API_KEY, use_context=True)
     dispatcher = updater.dispatcher
-    redis1 = redis.Redis(host=config['REDIS']['HOST'], password=config['REDIS']['PASSWORD'], port=config['REDIS']['REDISPORT'])
+
+    #global redis1
+    #redis1 = redis.Redis(host=(Config.HOST), password=(Config.PASSWORD), port=(Config.REDISPORT))
+    print("abc")
+    TOKEN = Config.API_KEY
+    print(TOKEN) 
+    OWNER_ID = int(Config.OWNER_ID)
+    print(OWNER_ID)
+    #host = Config.HOST
+    ##password = Config.PASSWORD
+    #port = Config.REDISPORT
+    #print(host)
+    #print(password)
+    #print(port)
+
+    db = pymysql.connect(host="database-2.ckqwwshghlpj.ap-east-1.rds.amazonaws.com", user="administrator", password="administrator", port=3298)
+    #db = pymysql.connect('database-2.ckqwwshghlpj.ap-east-1.rds.amazonaws.com', 'administrator', 'administrator', '3298')
+    cursor = db.cursor()
+    cursor
+    cursor.execute("select version()")
+
+    data = cursor.fetchone()
+    print(data)
+
+    sql = '''use Test_Schema'''
+    cursor.execute(sql)
+    sql = '''SELECT * FROM Persons'''
+    cursor.execute(sql)
+    data = cursor.fetchall()
+
+
+    print(data)
+
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     
     dispatcher.add_handler(CommandHandler("start", start))
@@ -92,16 +139,21 @@ def hello_command(update: Update, context: CallbackContext) -> None:
 
 
 def add(update: Update, context: CallbackContext) -> None:
-    """Increase the count of a keyword and send a message with the current count."""
-    bot = context.bot
+    """Send a message when the command /add is issued."""
     try:
-        redis1 = redis.Redis(host=config['REDIS']['HOST'], password=config['REDIS']['PASSWORD'], port=config['REDIS']['REDISPORT'])
+        print(1)
+        #global redis1
+        print(2)
         logging.info(context.args[0])
-        msg = context.args[0] 
-        redis1.incr(msg)
-        bot.send_message(chat_id=update.effective_chat.id, text='You have said ' + msg + ' for ' + redis1.get(msg).decode('UTF-8') + ' times.')
+        print(3)
+        msg = context.args[0] # /add keyword <-- this should store the keyword
+        print(4)
+
+        #redis1.incr(msg)
+        #update.message.reply_text('You have said ' + msg + ' for ' + redis1.get(msg).decode('UTF-8') + ' times.')
     except (IndexError, ValueError):
-        bot.send_message(chat_id=update.effective_chat.id, text='Usage: /add <keyword>')
+        update.message.reply_text('Usage: /add <keyword>')
+
 
 if __name__ == '__main__':
     main()
