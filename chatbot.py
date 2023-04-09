@@ -91,15 +91,16 @@ def start(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     bot.send_message(chat_id=chat_id, text="Welcome to ITM Buddy! Please find the following functions available:")
     bot.send_message(chat_id=chat_id, text="(1) Command /hello : say hello to us 🙈 ")
-    bot.send_message(chat_id=chat_id, text="(2) Command /gradreq <studentID> : Check your study progression")   
-    bot.send_message(chat_id=chat_id, text="(3) Command /course <course> :  Check information for a specific course in ITM")
-    bot.send_message(chat_id=chat_id, text="(4) Command /core :  Check the list and schedule of the core courses for 2022-2023")
-    bot.send_message(chat_id=chat_id, text="(5) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023")
-    bot.send_message(chat_id=chat_id, text="(6) Command /map <buildingshortname> :  Check the location of a building")
-    bot.send_message(chat_id=chat_id, text="(7) Command /print :  Check the location for the printer service")   
-    bot.send_message(chat_id=chat_id, text="(8) Command /eat :  Check the location for the canteen") 
-    bot.sendMessage(chat_id=chat_id, text="(9) Command /study :  Check the location for the study place, such as library, learning common, computer room")
-    bot.sendMessage(chat_id=chat_id, text="(10) Command /help :  Check if you have further enquiry")
+    bot.send_message(chat_id=chat_id, text="(2) Command /info : Here are some important links you may need 😇 ")
+    bot.send_message(chat_id=chat_id, text="(3) Command /gradreq <studentID> : Check your study progression")   
+    bot.send_message(chat_id=chat_id, text="(4) Command /course <course> :  Check information for a specific course in ITM")
+    bot.send_message(chat_id=chat_id, text="(5) Command /core :  Check the list and schedule of the core courses for 2022-2023")
+    bot.send_message(chat_id=chat_id, text="(6) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023")
+    bot.send_message(chat_id=chat_id, text="(7) Command /map <buildingshortname> :  Check the location of a building")
+    bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   
+    bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") 
+    bot.sendMessage(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room")
+    bot.sendMessage(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰")
 
 #def echo(update: Update, context: CallbackContext) -> None:
     #"""Respond to the user's message with the same message in uppercase."""
