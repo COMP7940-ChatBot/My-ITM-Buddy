@@ -75,19 +75,17 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler("hello", hello_command))
     dispatcher.add_handler(CommandHandler('info', info))
-    #dispatcher.add_handler(MessageHandler(Filters.command, unknown))
-    #dispatcher.add_handler(CommandHandler('gradreq', result_info))
     dispatcher.add_handler(CommandHandler('core', core_course_list))
     dispatcher.add_handler(CommandHandler('elective', elective_course_list))
     dispatcher.add_handler(CommandHandler("study", study))
     dispatcher.add_handler(CommandHandler("eat", eat))
     dispatcher.add_handler(CommandHandler("printer", printer))
 
-    #dispatcher.add_handler(CommandHandler('course', course_command))
     dispatcher.add_handler(course_handler)
     dispatcher.add_handler(gradreqconv_handler)
     dispatcher.add_handler(map_handler)
-
+    dispatcher.add_handler(CommandHandler("cancel", cancel))
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
     updater.start_polling()
     updater.idle()
 
@@ -111,7 +109,7 @@ def start(update: Update, context: CallbackContext) -> None:
     bot.send_message(chat_id=chat_id, text="(5) Command /core :  Check the list and schedule of the core courses for 2022-2023") 
     bot.send_message(chat_id=chat_id, text="(6) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023") 
     bot.send_message(chat_id=chat_id, text="(7) Command /map <building code> :  Check the location of a building") 
-    bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   
+    bot.send_message(chat_id=chat_id, text="(8) Command /printer :  Check the location for the printer service")   
     bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") 
     bot.send_message(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") 
     bot.send_message(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰") 
@@ -359,7 +357,7 @@ def eat(update: Update, context: CallbackContext) -> None:
     bot.send_message(chat_id=update.effective_chat.id, text='There are several restaurants on campus available for students. You can find a list of them on "http://sass.hkbu.edu.hk/sass/ntt/guests/eng/Catering_Outlets.php", feel free to use the /map command to find the location 😉')
 
 def study(update: Update, context: CallbackContext) -> None: 
-    """Send a message when the command /printer is issued."""
+    """Send a message when the command /study is issued."""
     bot = context.bot
     bot.send_message(chat_id=update.effective_chat.id, text='For studying, we recommend the library (AML, SCM) and the Learning Commons (AAB, FSC), where are quiet and provide the resources for academic success, feel free to use the /map command to find the location 😉')
 
