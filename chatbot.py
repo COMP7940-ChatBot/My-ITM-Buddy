@@ -242,7 +242,7 @@ def studyprogressionresult(update, context):
 
             var += student_cgpa + student_student_result
         else:
-            var = "Your student ID or security code may be invalid. Please try again."
+            var = "Your student ID or security code may be invalid. Please try again by /gradreq."
 
         logging.info("User %s gradreq studyprogressionresult", var)
               
