@@ -12,11 +12,12 @@ import decimal
 from config import Development as Config
 import mysql.connector
 from mysql.connector import Error
-import telebot
-from telebot import types
+#import telebot
+#from telebot import types
   
 studentID = None
-Studyprogression = range(2)
+coursecode = None
+study_progression_reuslt, course_code,map_code = range(3)
 db = pymysql.connect(host="comp7940.ctai684j2oul.ap-east-1.rds.amazonaws.com", user="administrator", password="administrator", port=3298, db="db_comp7940")
 cursor = db.cursor()
 
@@ -28,7 +29,7 @@ cursor = db.cursor()
 
 # Load your token and create an Updater for your Bot
 
-bot = telebot.TeleBot(Config.API_KEY)
+#bot = telebot.TeleBot(Config.API_KEY)
 
 def main():
     config = configparser.ConfigParser()
@@ -72,16 +73,40 @@ def main():
 
     gradreqconv_handler = ConversationHandler(
         entry_points=[CommandHandler(
-            "sharegradreq", sharegradreq)],
+            "gradreq", gradreq)],
         states={
-            Studyprogression: [
+            study_progression_reuslt: [
                 MessageHandler(Filters.text & (
-                    ~Filters.command), sharestudyprogression)
+                    ~Filters.command), studyprogressionresult)
             ],
         },
         fallbacks=[CommandHandler('end', cancel)],
     )
 
+    
+    course_handler = ConversationHandler(
+        entry_points=[CommandHandler(
+            "course", course)],
+        states={
+            course_code: [
+                MessageHandler(Filters.text & (
+                    ~Filters.command), course_command)
+            ],
+        },
+        fallbacks=[CommandHandler('end', cancel)],
+    )
+
+    map_handler = ConversationHandler(
+        entry_points=[CommandHandler(
+            "map", map)],
+        states={
+            map_code: [
+                MessageHandler(Filters.text & (
+                    ~Filters.command), map_command)
+            ],
+        },
+        fallbacks=[CommandHandler('end', cancel)],
+    )
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -96,8 +121,10 @@ def main():
     dispatcher.add_handler(CommandHandler('core', core_course_list))
     dispatcher.add_handler(CommandHandler('elective', elective_course_list))
 
-    dispatcher.add_handler(CommandHandler('course', course_command))
+    #dispatcher.add_handler(CommandHandler('course', course_command))
+    dispatcher.add_handler(course_handler)
     dispatcher.add_handler(gradreqconv_handler)
+    dispatcher.add_handler(map_handler)
 
     updater.start_polling()
     updater.idle()
@@ -166,16 +193,16 @@ def info(update: Update, context: CallbackContext) -> None:
 
 
 # gradreq command
-def sharegradreq(update, context):
+def gradreq(update, context):
     userid = update.message.from_user.id
     logging.info("User %s selected /gradreq", userid)
     user_name = update.message.from_user.first_name
     context.bot.send_message(
         chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of studentID')
-    return Studyprogression
+    return study_progression_reuslt
 
-# sharestudyprogression
-def sharestudyprogression(update, context):
+# Study Progression Result
+def studyprogressionresult(update, context):
     global studentID
     studentID = update.message.text
     userid = update.message.from_user.id
@@ -187,13 +214,14 @@ def sharestudyprogression(update, context):
             "SELECT * FROM tbl_student WHERE student_id<>%s order by RAND() LIMIT 1", (studentID))
         sqlresult = cursor.fetchall()
         db.commit()
+        var =''
         for result in sqlresult:
-            student_cgpa = result[1]
-            student_total_unit = result[1]
+            student_cgpa = "Student cGPA : " +  str(decimal.Decimal(result[1])) + "\n"
+            student_student_result = "Student Result : " + result[10] + "\n"
 
-        #dec = decimal.Decimal(student_cgpa)
+        var += student_cgpa + student_student_result
                    
-        reply_message = "student cGPA:"+ str(decimal.Decimal(student_cgpa))   
+        reply_message = var   
         context.bot.send_message(
             chat_id=update.effective_chat.id, text=reply_message)
     except pymysql.Error as e:
@@ -211,26 +239,88 @@ def cancel(update, context) -> int:
     )
     return ConversationHandler.END
 
-# sharecourse
-def course_command(update, context):
-    global studentID
-    studentID = update.message.text
+# course command
+def course(update, context):
     userid = update.message.from_user.id
-    logging.info("User %s share movie name %s", userid, studentID)
+    logging.info("User %s selected /course", userid)
+    user_name = update.message.from_user.first_name
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of course')
+    return course_code
+
+
+def course_command(update, context):
+    global coursecode
+    coursecode = update.message.text
+    userid = update.message.from_user.id
+    logging.info("User %s name %s", userid, coursecode)
 
     try:
        
         cursor.execute(
-            "SELECT * FROM tbl_course")
+            "SELECT * FROM tbl_course WHERE course_code<>%s order by RAND() LIMIT 1", (coursecode))
         sqlresult = cursor.fetchall()
         db.commit()
 
         print("Total number of rows in table: ", cursor.rowcount)
         var =''
         for result in sqlresult:
-            course_code = result[0]
-            course_name = result[1]
-            var += course_code + " : " + course_name +"\n"
+            course_code = "Course Code : " + result[0] + "\n"
+            course_name = "Course Name : " + result[1] + "\n"
+            course_category = "Course Category : " + result[2] + "\n"
+            course_year = "Course Year : " + result[3] + "\n"
+            course_sem = "Course Semester : " + str(result[4]) + "\n"
+            course_stream = "Course Stream : " + str(result[5]) + "\n"
+            course_credit = "Course Credit : " + str(result[6]) + "\n"
+            course_link = "Course Link : " + str(result[7]) + "\n"
+            course_daytime = "Course Day Time : " + result[10] + " " + result[11] + "\n\n"
+            #var += course_code + " : " + course_name +"\n"
+            var += course_code + course_name + course_year + course_sem + course_stream + course_credit + course_link + course_daytime
+        
+        reply_message = "student "+ var   
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=reply_message)
+    except pymysql.Error as e:
+        print("could not close connection error pymysql %d: %s" %
+              (e.args[0], e.args[1]))
+    return ConversationHandler.END
+
+# map command
+def map(update, context):
+    userid = update.message.from_user.id
+    logging.info("User %s selected /map", userid)
+    user_name = update.message.from_user.first_name
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of map code')
+    return map_code
+
+def map_command(update, context):
+    global map_code
+    map_code = update.message.text
+    userid = update.message.from_user.id
+    logging.info("User %s name %s", userid, map_code)
+
+    try:
+       
+        cursor.execute(
+            "SELECT * FROM tbl_course WHERE course_code<>%s order by RAND() LIMIT 1", (map_code))
+        sqlresult = cursor.fetchall()
+        db.commit()
+
+        print("Total number of rows in table: ", cursor.rowcount)
+        var =''
+        for result in sqlresult:
+            course_code = "Course Code : " + result[0] + "\n"
+            course_name = "Course Name : " + result[1] + "\n"
+            course_category = "Course Category : " + result[2] + "\n"
+            course_year = "Course Year : " + result[3] + "\n"
+            course_sem = "Course Semester : " + str(result[4]) + "\n"
+            course_stream = "Course Stream : " + str(result[5]) + "\n"
+            course_credit = "Course Credit : " + str(result[6]) + "\n"
+            course_link = "Course Link : " + str(result[7]) + "\n"
+            course_daytime = "Course Day Time : " + result[10] + " " + result[11] + "\n\n"
+            #var += course_code + " : " + course_name +"\n"
+            var += course_code + course_name + course_year + course_sem + course_stream + course_credit + course_link + course_daytime
         
         reply_message = "student "+ var   
         context.bot.send_message(
