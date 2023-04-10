@@ -111,7 +111,7 @@ def start(update: Update, context: CallbackContext) -> None:
     bot.send_message(chat_id=chat_id, text="(5) Command /core :  Check the list and schedule of the core courses for 2022-2023") 
     bot.send_message(chat_id=chat_id, text="(6) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023") 
     bot.send_message(chat_id=chat_id, text="(7) Command /map <building code> :  Check the location of a building") 
-    bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   
+    bot.send_message(chat_id=chat_id, text="(8) Command /printer :  Check the location for the printer service")   
     bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") 
     bot.send_message(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") 
     bot.send_message(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰") 
@@ -359,7 +359,7 @@ def eat(update: Update, context: CallbackContext) -> None:
     bot.send_message(chat_id=update.effective_chat.id, text='There are several restaurants on campus available for students. You can find a list of them on "http://sass.hkbu.edu.hk/sass/ntt/guests/eng/Catering_Outlets.php", feel free to use the /map command to find the location 😉')
 
 def study(update: Update, context: CallbackContext) -> None: 
-    """Send a message when the command /printer is issued."""
+    """Send a message when the command /study is issued."""
     bot = context.bot
     bot.send_message(chat_id=update.effective_chat.id, text='For studying, we recommend the library (AML, SCM) and the Learning Commons (AAB, FSC), where are quiet and provide the resources for academic success, feel free to use the /map command to find the location 😉')
 
