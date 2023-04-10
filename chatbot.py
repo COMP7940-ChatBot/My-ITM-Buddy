@@ -10,7 +10,10 @@ import sys
 import decimal
 
 from config import Development as Config
-#testing
+import mysql.connector
+from mysql.connector import Error
+import telebot
+from telebot import types
   
 studentID = None
 Studyprogression = range(2)
@@ -24,6 +27,9 @@ cursor = db.cursor()
 #[telegram.ext.Handler]("http://python-telegrambot.readthedocs.io/en/latest/telegram.ext.messagehandler.html")
 
 # Load your token and create an Updater for your Bot
+
+bot = telebot.TeleBot(Config.API_KEY)
+
 def main():
     config = configparser.ConfigParser()
     #config.read('config.ini')
@@ -78,7 +84,7 @@ def main():
 
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-    
+
     dispatcher.add_handler(CommandHandler("start", start))
     #dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
     dispatcher.add_handler(CommandHandler("add", add))
@@ -86,6 +92,9 @@ def main():
     dispatcher.add_handler(CommandHandler("hello", hello_command))
     dispatcher.add_handler(CommandHandler('info', info))
     #dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+    #dispatcher.add_handler(CommandHandler('gradreq', result_info))
+    dispatcher.add_handler(CommandHandler('core', core_course_list))
+    dispatcher.add_handler(CommandHandler('elective', elective_course_list))
 
     dispatcher.add_handler(CommandHandler('course', course_command))
     dispatcher.add_handler(gradreqconv_handler)
@@ -122,8 +131,8 @@ def start(update: Update, context: CallbackContext) -> None:
     bot.send_message(chat_id=chat_id, text="(7) Command /map <buildingshortname> :  Check the location of a building") #pending
     bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   #pending
     bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") #pending
-    bot.sendMessage(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") #pending
-    bot.sendMessage(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰") #done
+    bot.send_message(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") #pending
+    bot.send_message(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰") #done
 
 #def hello_command(update: Update, context: CallbackContext) -> None:
     #"""Send a message when the command /hello is issued with an argument."""
@@ -262,5 +271,72 @@ def add(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Usage: /add <keyword>')
 
 
+#Core Course List
+def core_course_list(update: Update, context: CallbackContext):
+    try:
+        cursor.execute(
+            "SELECT * FROM tbl_course Where course_category = 'Core'")
+        sqlresult = cursor.fetchall()
+        db.commit()
+
+        print("Total number of rows in table: ", cursor.rowcount)
+        var =''
+        for result in sqlresult:
+            course_code = "Course Code : " + result[0] + "\n"
+            course_name = "Course Name : " + result[1] + "\n"
+            course_category = "Course Category : " + result[2] + "\n"
+            course_year = "Course Year : " + result[3] + "\n"
+            course_sem = "Course Semester : " + str(result[4]) + "\n"
+            course_stream = "Course Stream : " + str(result[5]) + "\n"
+            course_credit = "Course Credit : " + str(result[6]) + "\n"
+            course_link = "Course Link : " + str(result[7]) + "\n"
+            course_daytime = "Course Day Time : " + result[10] + " " + result[11] + "\n\n"
+            #var += course_code + " : " + course_name +"\n"
+            var += course_code + course_name + course_year + course_sem + course_stream + course_credit + course_link + course_daytime
+        
+        reply_message = " "+ var   
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=reply_message)
+    except pymysql.Error as e:
+        print("could not close connection error pymysql %d: %s" %
+              (e.args[0], e.args[1]))
+    return ConversationHandler.END
+
+#Core Course List
+def elective_course_list(update: Update, context: CallbackContext):
+    try:
+        cursor.execute(
+            "SELECT * FROM tbl_course Where course_category = 'Elective' order by course_semester")
+        sqlresult = cursor.fetchall()
+        db.commit()
+
+        print("Total number of rows in table: ", cursor.rowcount)
+        var =''
+        for result in sqlresult:
+            course_code = "Course Code : " + result[0] + "\n"
+            course_name = "Course Name : " + result[1] + "\n"
+            course_category = "Course Category : " + result[2] + "\n"
+            course_year = "Course Year : " + result[3] + "\n"
+            course_sem = "Course Semester : " + str(result[4]) + "\n"
+            course_stream = "Course Stream : " + str(result[5]) + "\n"
+            course_credit = "Course Credit : " + str(result[6]) + "\n"
+            #course_link = "Course Link : " + str(result[7]) + "\n"
+            course_link = ""
+            course_daytime = "Course Day Time : " + result[10] + " " + result[11] + "\n\n"
+            #var += course_code + " : " + course_name +"\n"
+            var += course_code + course_name + course_year + course_sem + course_stream + course_credit + course_link + course_daytime
+        
+        reply_message = " "+ var   
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=reply_message)
+    except pymysql.Error as e:
+        print("could not close connection error pymysql %d: %s" %
+              (e.args[0], e.args[1]))
+    return ConversationHandler.END
+
+
+
+
 if __name__ == '__main__':
     main()
+
