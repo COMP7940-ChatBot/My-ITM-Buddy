@@ -16,8 +16,10 @@ from mysql.connector import Error
 #from telebot import types
   
 studentID = None
+securityID = None
 coursecode = None
-study_progression_reuslt, course_code,map_code = range(3)
+course_code,map_code = range(2)
+study_progression_reuslt, security_check = range(2)
 db = pymysql.connect(host="comp7940.ctai684j2oul.ap-east-1.rds.amazonaws.com", user="administrator", password="administrator", port=3298, db="db_comp7940")
 cursor = db.cursor()
 
@@ -75,6 +77,10 @@ def main():
         entry_points=[CommandHandler(
             "gradreq", gradreq)],
         states={
+            security_check: [
+                MessageHandler(Filters.text & (
+                    ~Filters.command), securityreq)
+            ],
             study_progression_reuslt: [
                 MessageHandler(Filters.text & (
                     ~Filters.command), studyprogressionresult)
@@ -195,32 +201,51 @@ def info(update: Update, context: CallbackContext) -> None:
 # gradreq command
 def gradreq(update, context):
     userid = update.message.from_user.id
-    logging.info("User %s selected /gradreq", userid)
+    logging.info("User %s selected /gradreq studentID", userid)
     user_name = update.message.from_user.first_name
     context.bot.send_message(
         chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of studentID')
+    return security_check
+
+def securityreq(update, context):
+    global studentID
+    studentID = update.message.text
+    userid = update.message.from_user.id
+    logging.info("User %s selected /gradreq studentID", userid)
+    logging.info("studentID %s selected /gradreq ", studentID)
+
+    user_name = update.message.from_user.first_name
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of securityID')
     return study_progression_reuslt
 
 # Study Progression Result
 def studyprogressionresult(update, context):
-    global studentID
-    studentID = update.message.text
-    userid = update.message.from_user.id
-    logging.info("User %s share movie name %s", userid, studentID)
+    global studentID, securityID
+    securityID = update.message.text
 
+    userid = update.message.from_user.id
+    logging.info("User %s gradreq studyprogressionresult studentID %s", userid, studentID)
+    logging.info("User %s gradreq studyprogressionresult securityID %s", userid, securityID)
     try:
        
         cursor.execute(
-            "SELECT * FROM tbl_student WHERE student_id<>%s order by RAND() LIMIT 1", (studentID))
+            "SELECT * FROM tbl_student WHERE student_id=%s and student_security_code=%s order by RAND() LIMIT 1", (studentID, securityID))
         sqlresult = cursor.fetchall()
         db.commit()
+        print("Total number of rows in table: ", cursor.rowcount)
         var =''
-        for result in sqlresult:
-            student_cgpa = "Student cGPA : " +  str(decimal.Decimal(result[1])) + "\n"
-            student_student_result = "Student Result : " + result[10] + "\n"
+        if  cursor.rowcount > 0:
+            for result in sqlresult:
+                student_cgpa = "Student cGPA : " +  str(decimal.Decimal(result[1])) + "\n"
+                student_student_result = "Student Result : " + result[10] + "\n"
 
-        var += student_cgpa + student_student_result
-                   
+            var += student_cgpa + student_student_result
+        else:
+            var = "Can not find data record in database table or Invalid data, please try again"
+
+        logging.info("User %s gradreq studyprogressionresult", var)
+              
         reply_message = var   
         context.bot.send_message(
             chat_id=update.effective_chat.id, text=reply_message)
