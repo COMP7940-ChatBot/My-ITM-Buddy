@@ -2,18 +2,15 @@ from telegram import Update, Bot, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext,CallbackQueryHandler, ConversationHandler
 import configparser
 import logging
-#import redis
 import pymysql
 import os 
 import sys
-#global redis1
 import decimal
 
 from config import Development as Config
 import mysql.connector
 from mysql.connector import Error
-#import telebot
-#from telebot import types
+
   
 studentID = None
 securityID = None
@@ -23,55 +20,12 @@ study_progression_reuslt, security_check = range(2)
 db = pymysql.connect(host="comp7940.ctai684j2oul.ap-east-1.rds.amazonaws.com", user="administrator", password="administrator", port=3298, db="db_comp7940")
 cursor = db.cursor()
 
-#[telegram.ext.Updater]("https://python-telegrambot.readthedocs.io/en/latest/telegram.ext.updater.html#telegram.ext.updater.Updater")
-
-#[telegram.ext.Dispatcher]("https://pythontelegrambot.readthedocs.io/en/latest/telegram.ext.dispatcher.html#telegram.ext.Dispatcher")
-
-#[telegram.ext.Handler]("http://python-telegrambot.readthedocs.io/en/latest/telegram.ext.messagehandler.html")
-
-# Load your token and create an Updater for your Bot
-
-#bot = telebot.TeleBot(Config.API_KEY)
 
 def main():
     config = configparser.ConfigParser()
-    #config.read('config.ini')
-    #config.read('config.py')
-    #updater = Updater(token=(Config.API_KEY), use_context=True)
     updater = Updater(Config.API_KEY, use_context=True)
     dispatcher = updater.dispatcher
 
-    #global redis1
-    #redis1 = redis.Redis(host=(Config.HOST), password=(Config.PASSWORD), port=(Config.REDISPORT))
-    print("abc")
-    TOKEN = Config.API_KEY
-    print(TOKEN) 
-    OWNER_ID = int(Config.OWNER_ID)
-    print(OWNER_ID)
-    #host = Config.HOST
-    ##password = Config.PASSWORD
-    #port = Config.REDISPORT
-    #print(host)
-    #print(password)
-    #print(port)
-
-    db = pymysql.connect(host="database-2.ckqwwshghlpj.ap-east-1.rds.amazonaws.com", user="administrator", password="administrator", port=3298)
-    #db = pymysql.connect('database-2.ckqwwshghlpj.ap-east-1.rds.amazonaws.com', 'administrator', 'administrator', '3298')
-    cursor = db.cursor()
-    cursor
-    cursor.execute("select version()")
-
-    data = cursor.fetchone()
-    print(data)
-
-    sql = '''use Test_Schema'''
-    cursor.execute(sql)
-    sql = '''SELECT * FROM Persons'''
-    cursor.execute(sql)
-    data = cursor.fetchall()
-
-
-    print(data)
 
     gradreqconv_handler = ConversationHandler(
         entry_points=[CommandHandler(
@@ -117,7 +71,6 @@ def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     dispatcher.add_handler(CommandHandler("start", start))
-    #dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
     dispatcher.add_handler(CommandHandler("add", add))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler("hello", hello_command))
@@ -135,46 +88,32 @@ def main():
     updater.start_polling()
     updater.idle()
 
-#def echo(update: Update, context: CallbackContext) -> None:
-    #"""Respond to the user's message with the same message in uppercase."""
-    #bot = context.bot
-    #reply_message = update.message.text.upper()
-    #logging.info("Update: " + str(update))
-    #logging.info("context: " + str(context))
-    #bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
-def echo(update: Update, context: CallbackContext) -> None:
-    """Respond to the user's message with a greeting."""
-    bot = context.bot
-    user_name = update.message.from_user.first_name
-    reply_message = f'Good day, {user_name}! This is My ITM Buddy. Please use the /start command to begin your journey with the chatbot.'
-    bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+#def echo(update: Update, context: CallbackContext) -> None:
+    #"""Respond to the user's message with a greeting."""
+    #bot = context.bot
+    #user_name = update.message.from_user.first_name
+    #reply_message = f'Good day, {user_name}! This is My ITM Buddy. Please use the /start command to begin your journey with the chatbot.'
+    #bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     bot = context.bot
     chat_id = update.effective_chat.id
-    bot.send_message(chat_id=chat_id, text="Welcome to ITM Buddy! Please find the following functions available:") #done
-    bot.send_message(chat_id=chat_id, text="(1) Command /hello : say hello to us 🙈 ") #done
-    bot.send_message(chat_id=chat_id, text="(2) Command /info : Here are some important links you may need 😇 ") #done
-    bot.send_message(chat_id=chat_id, text="(3) Command /gradreq <student id> : Check your study progression")   #needtoreview
-    bot.send_message(chat_id=chat_id, text="(4) Command /course <course code> :  Check information for a specific course in ITM") #needtoreview
-    bot.send_message(chat_id=chat_id, text="(5) Command /core :  Check the list and schedule of the core courses for 2022-2023") #pending
-    bot.send_message(chat_id=chat_id, text="(6) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023") #pending
-    bot.send_message(chat_id=chat_id, text="(7) Command /map <building code> :  Check the location of a building") #pending
-    bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   #pending
-    bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") #pending
-    bot.send_message(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") #pending
-    bot.send_message(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰") #done
+    bot.send_message(chat_id=chat_id, text="Welcome to ITM Buddy! Please find the following functions available:") 
+    bot.send_message(chat_id=chat_id, text="(1) Command /hello : say hello to us 🙈 ") 
+    bot.send_message(chat_id=chat_id, text="(2) Command /info : Here are some important links you may need 😇 ") 
+    bot.send_message(chat_id=chat_id, text="(3) Command /gradreq <student id> : Check your study progression")   
+    bot.send_message(chat_id=chat_id, text="(4) Command /course <course code> :  Check information for a specific course in ITM") 
+    bot.send_message(chat_id=chat_id, text="(5) Command /core :  Check the list and schedule of the core courses for 2022-2023") 
+    bot.send_message(chat_id=chat_id, text="(6) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023") 
+    bot.send_message(chat_id=chat_id, text="(7) Command /map <building code> :  Check the location of a building") 
+    bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   
+    bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") 
+    bot.send_message(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") 
+    bot.send_message(chat_id=chat_id, text="(11) Command /help :  Check if you have further enquiry 🥰") 
+    bot.send_message(chat_id=chat_id, text="(12) Command /cancel :  You could end the conversation if needed") 
 
-#def hello_command(update: Update, context: CallbackContext) -> None:
-    #"""Send a message when the command /hello is issued with an argument."""
-    #bot = context.bot
-    #try:
-        #msg = context.args[0] # /hello keyword <-- this should store the keyword
-        #bot.send_message(chat_id=update.effective_chat.id, text='Good day, '+msg+'! This is Alvin_bot')
-    #except (IndexError, ValueError):
-        #bot.send_message(chat_id=update.effective_chat.id, text='Usage: /hello <keyword>')
 
 def hello_command(update: Update, context: CallbackContext) -> None:
     """Respond to the /hello command with a greeting message."""
@@ -216,7 +155,7 @@ def securityreq(update, context):
 
     user_name = update.message.from_user.first_name
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of securityID')
+        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input your securityID')
     return study_progression_reuslt
 
 # Study Progression Result
@@ -242,7 +181,7 @@ def studyprogressionresult(update, context):
 
             var += student_cgpa + student_student_result
         else:
-            var = "Can not find data record in database table or Invalid data, please try again"
+            var = "Your student ID or security code may be invalid. Please try again by /gradreq."
 
         logging.info("User %s gradreq studyprogressionresult", var)
               
@@ -254,15 +193,6 @@ def studyprogressionresult(update, context):
               (e.args[0], e.args[1]))
     return ConversationHandler.END
 
-# cancel
-def cancel(update, context) -> int:
-    """Cancels and ends the conversation."""
-    user = update.message.from_user
-    logging.info("User %s canceled the conversation.", user.first_name)
-    update.message.reply_text(
-        'Bye! Have a nice day.'
-    )
-    return ConversationHandler.END
 
 # course command
 def course(update, context):
@@ -309,78 +239,6 @@ def course_command(update, context):
         print("could not close connection error pymysql %d: %s" %
               (e.args[0], e.args[1]))
     return ConversationHandler.END
-
-# map command
-def map(update, context):
-    userid = update.message.from_user.id
-    logging.info("User %s selected /map", userid)
-    user_name = update.message.from_user.first_name
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of map code')
-    return map_code
-
-def map_command(update, context):
-    global map_code
-    map_code = update.message.text
-    userid = update.message.from_user.id
-    logging.info("User %s name %s", userid, map_code)
-
-    try:
-       
-        cursor.execute(
-            "SELECT * FROM tbl_campus WHERE campus_b_code<>%s order by RAND() LIMIT 1", (map_code))
-        sqlresult = cursor.fetchall()
-        db.commit()
-
-        print("Total number of rows in table: ", cursor.rowcount)
-        var_campus_latitude  =''
-        var_campus_longitude  =''
-
-        for result in sqlresult:
-            var_campus_latitude = result[4]
-            var_campus_longitude = result[5]
-
-        reply_message = "This is " + map_code + " location of a building" 
-        print("Total var_campus_latitude: ", var_campus_latitude)
-        print("Total var_campus_longitude: ", var_campus_longitude)
-        context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
-        context.bot.sendLocation(chat_id=update.effective_chat.id, latitude=var_campus_latitude, longitude=var_campus_longitude)
-
-    except pymysql.Error as e:
-        print("could not close connection error pymysql %d: %s" %
-              (e.args[0], e.args[1]))
-    return ConversationHandler.END
-
-
-def unknown(update, context):
-    reply_message = update.message.text.upper()
-    logging.info("Update: " + str(update))
-    logging.info("context: " + str(context))
-    context.bot.sendMessage(chat_id=update.message.chat_id, text="Sorry, I didn't understand that command.")
-
-def help_command(update: Update, context: CallbackContext) -> None: 
-    """Send a message when the command /help is issued."""
-    bot = context.bot
-    bot.send_message(chat_id=update.effective_chat.id, text='Helping you helping you.\nIf you have further inquiries, please contact us during office hours at Telephone: +852 3411 7079 or Email: itm@comp.hkbu.edu.hk.\n Or you can use /add <studentID> to share your studuentID and we will contact you asap')
-
-
-#refer to helpmand
-def add(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /add is issued."""
-    try:
-        print(1)
-        #global redis1
-        print(2)
-        logging.info(context.args[0])
-        print(3)
-        msg = context.args[0] # /add keyword <-- this should store the keyword
-        print(4)
-
-        #redis1.incr(msg)
-        #update.message.reply_text('You have said ' + msg + ' for ' + redis1.get(msg).decode('UTF-8') + ' times.')
-    except (IndexError, ValueError):
-        update.message.reply_text('Usage: /add <keyword>')
-
 
 #Core Course List
 def core_course_list(update: Update, context: CallbackContext):
@@ -445,6 +303,102 @@ def elective_course_list(update: Update, context: CallbackContext):
               (e.args[0], e.args[1]))
     return ConversationHandler.END
 
+# map command
+def map(update, context):
+    userid = update.message.from_user.id
+    logging.info("User %s selected /map", userid)
+    user_name = update.message.from_user.first_name
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of map code')
+    return map_code
+
+def map_command(update, context):
+    global map_code
+    map_code = update.message.text
+    userid = update.message.from_user.id
+    logging.info("User %s name %s", userid, map_code)
+
+    try:
+       
+        cursor.execute(
+            "SELECT * FROM tbl_campus WHERE campus_b_code<>%s order by RAND() LIMIT 1", (map_code))
+        sqlresult = cursor.fetchall()
+        db.commit()
+
+        print("Total number of rows in table: ", cursor.rowcount)
+        var_campus_latitude  =''
+        var_campus_longitude  =''
+
+        for result in sqlresult:
+            var_campus_latitude = result[4]
+            var_campus_longitude = result[5]
+
+        reply_message = "This is " + map_code + " location of a building" 
+        print("Total var_campus_latitude: ", var_campus_latitude)
+        print("Total var_campus_longitude: ", var_campus_longitude)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+        context.bot.sendLocation(chat_id=update.effective_chat.id, latitude=var_campus_latitude, longitude=var_campus_longitude)
+
+    except pymysql.Error as e:
+        print("could not close connection error pymysql %d: %s" %
+              (e.args[0], e.args[1]))
+    return ConversationHandler.END
+
+
+def help_printer(update: Update, context: CallbackContext) -> None: 
+    """Send a message when the command /printer is issued."""
+    bot = context.bot
+    bot.send_message(chat_id=update.effective_chat.id, text='You could find the printer service in the Kowloon Tong Campaus by "https://ito.hkbu.edu.hk/services/printing-services/fup.html", feel free to use the /map command to find the location 😉')
+
+def help_eat(update: Update, context: CallbackContext) -> None: 
+    """Send a message when the command /eat is issued."""
+    bot = context.bot
+    bot.send_message(chat_id=update.effective_chat.id, text='There are several restaurants on campus available for students. You can find a list of them on "http://sass.hkbu.edu.hk/sass/ntt/guests/eng/Catering_Outlets.php", feel free to use the /map command to find the location 😉')
+
+def help_study(update: Update, context: CallbackContext) -> None: 
+    """Send a message when the command /printer is issued."""
+    bot = context.bot
+    bot.send_message(chat_id=update.effective_chat.id, text='For studying, we recommend the library (AML, SCM) and the Learning Commons (AAB, FSC), where are quiet and provide the resources for academic success, feel free to use the /map command to find the location 😉')
+
+def help_command(update: Update, context: CallbackContext) -> None: 
+    """Send a message when the command /help is issued."""
+    bot = context.bot
+    bot.send_message(chat_id=update.effective_chat.id, text='Helping you helping you.\nIf you have further inquiries, please contact us during office hours at Telephone: +852 3411 7079 or Email: itm@comp.hkbu.edu.hk.\n Or you can use /add <studentID> to share your studuentID and we will contact you asap🤓')
+
+
+#refer to helpmand
+def add(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /add is issued."""
+    try:
+        print(1)
+        #global redis1
+        print(2)
+        logging.info(context.args[0])
+        print(3)
+        msg = context.args[0] # /add keyword <-- this should store the keyword
+        print(4)
+
+        #redis1.incr(msg)
+        #update.message.reply_text('You have said ' + msg + ' for ' + redis1.get(msg).decode('UTF-8') + ' times.')
+    except (IndexError, ValueError):
+        update.message.reply_text('Usage: /add <keyword>')
+
+
+# cancel
+def cancel(update, context) -> int:
+    """Cancels and ends the conversation."""
+    user = update.message.from_user
+    logging.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text(
+        'Bye! Have a nice day.'
+    )
+    return ConversationHandler.END
+
+def unknown(update, context):
+    reply_message = update.message.text.upper()
+    logging.info("Update: " + str(update))
+    logging.info("context: " + str(context))
+    context.bot.sendMessage(chat_id=update.message.chat_id, text="Sorry, I didn't understand that command.")
 
 
 
