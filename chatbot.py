@@ -89,13 +89,12 @@ def main():
     updater.idle()
 
 
-
-def echo(update: Update, context: CallbackContext) -> None:
-    """Respond to the user's message with a greeting."""
-    bot = context.bot
-    user_name = update.message.from_user.first_name
-    reply_message = f'Good day, {user_name}! This is My ITM Buddy. Please use the /start command to begin your journey with the chatbot.'
-    bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+#def echo(update: Update, context: CallbackContext) -> None:
+    #"""Respond to the user's message with a greeting."""
+    #bot = context.bot
+    #user_name = update.message.from_user.first_name
+    #reply_message = f'Good day, {user_name}! This is My ITM Buddy. Please use the /start command to begin your journey with the chatbot.'
+    #bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
