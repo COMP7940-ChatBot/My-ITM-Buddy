@@ -8,9 +8,6 @@ import sys
 import decimal
 
 from config import Development as Config
-import mysql.connector
-from mysql.connector import Error
-
   
 studentID = None
 securityID = None
@@ -75,29 +72,19 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler("hello", hello_command))
     dispatcher.add_handler(CommandHandler('info', info))
-    #dispatcher.add_handler(MessageHandler(Filters.command, unknown))
-    #dispatcher.add_handler(CommandHandler('gradreq', result_info))
     dispatcher.add_handler(CommandHandler('core', core_course_list))
     dispatcher.add_handler(CommandHandler('elective', elective_course_list))
     dispatcher.add_handler(CommandHandler("study", study))
     dispatcher.add_handler(CommandHandler("eat", eat))
     dispatcher.add_handler(CommandHandler("printer", printer))
 
-    #dispatcher.add_handler(CommandHandler('course', course_command))
     dispatcher.add_handler(course_handler)
     dispatcher.add_handler(gradreqconv_handler)
     dispatcher.add_handler(map_handler)
-
+    dispatcher.add_handler(CommandHandler("cancel", cancel))
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
     updater.start_polling()
     updater.idle()
-
-
-#def echo(update: Update, context: CallbackContext) -> None:
-    #"""Respond to the user's message with a greeting."""
-    #bot = context.bot
-    #user_name = update.message.from_user.first_name
-    #reply_message = f'Good day, {user_name}! This is My ITM Buddy. Please use the /start command to begin your journey with the chatbot.'
-    #bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
