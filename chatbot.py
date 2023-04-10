@@ -151,11 +151,11 @@ def start(update: Update, context: CallbackContext) -> None:
     bot.send_message(chat_id=chat_id, text="Welcome to ITM Buddy! Please find the following functions available:") #done
     bot.send_message(chat_id=chat_id, text="(1) Command /hello : say hello to us 🙈 ") #done
     bot.send_message(chat_id=chat_id, text="(2) Command /info : Here are some important links you may need 😇 ") #done
-    bot.send_message(chat_id=chat_id, text="(3) Command /gradreq <studentID> : Check your study progression")   #needtoreview
-    bot.send_message(chat_id=chat_id, text="(4) Command /course <course> :  Check information for a specific course in ITM") #needtoreview
+    bot.send_message(chat_id=chat_id, text="(3) Command /gradreq <student id> : Check your study progression")   #needtoreview
+    bot.send_message(chat_id=chat_id, text="(4) Command /course <course code> :  Check information for a specific course in ITM") #needtoreview
     bot.send_message(chat_id=chat_id, text="(5) Command /core :  Check the list and schedule of the core courses for 2022-2023") #pending
     bot.send_message(chat_id=chat_id, text="(6) Command /elective :  Check the list and schedule of the elective courses available in 2022-2023") #pending
-    bot.send_message(chat_id=chat_id, text="(7) Command /map <buildingshortname> :  Check the location of a building") #pending
+    bot.send_message(chat_id=chat_id, text="(7) Command /map <building code> :  Check the location of a building") #pending
     bot.send_message(chat_id=chat_id, text="(8) Command /print :  Check the location for the printer service")   #pending
     bot.send_message(chat_id=chat_id, text="(9) Command /eat :  Check the location for the canteen") #pending
     bot.send_message(chat_id=chat_id, text="(10) Command /study :  Check the location for the study place, such as library, learning common, computer room") #pending
@@ -303,28 +303,24 @@ def map_command(update, context):
     try:
        
         cursor.execute(
-            "SELECT * FROM tbl_course WHERE course_code<>%s order by RAND() LIMIT 1", (map_code))
+            "SELECT * FROM tbl_campus WHERE campus_b_code<>%s order by RAND() LIMIT 1", (map_code))
         sqlresult = cursor.fetchall()
         db.commit()
 
         print("Total number of rows in table: ", cursor.rowcount)
-        var =''
+        var_campus_latitude  =''
+        var_campus_longitude  =''
+
         for result in sqlresult:
-            course_code = "Course Code : " + result[0] + "\n"
-            course_name = "Course Name : " + result[1] + "\n"
-            course_category = "Course Category : " + result[2] + "\n"
-            course_year = "Course Year : " + result[3] + "\n"
-            course_sem = "Course Semester : " + str(result[4]) + "\n"
-            course_stream = "Course Stream : " + str(result[5]) + "\n"
-            course_credit = "Course Credit : " + str(result[6]) + "\n"
-            course_link = "Course Link : " + str(result[7]) + "\n"
-            course_daytime = "Course Day Time : " + result[10] + " " + result[11] + "\n\n"
-            #var += course_code + " : " + course_name +"\n"
-            var += course_code + course_name + course_year + course_sem + course_stream + course_credit + course_link + course_daytime
-        
-        reply_message = "student "+ var   
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text=reply_message)
+            var_campus_latitude = result[4]
+            var_campus_longitude = result[5]
+
+        reply_message = "This is " + map_code + " location of a building" 
+        print("Total var_campus_latitude: ", var_campus_latitude)
+        print("Total var_campus_longitude: ", var_campus_longitude)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+        context.bot.sendLocation(chat_id=update.effective_chat.id, latitude=var_campus_latitude, longitude=var_campus_longitude)
+
     except pymysql.Error as e:
         print("could not close connection error pymysql %d: %s" %
               (e.args[0], e.args[1]))
