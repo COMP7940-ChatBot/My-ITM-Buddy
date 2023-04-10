@@ -79,6 +79,9 @@ def main():
     #dispatcher.add_handler(CommandHandler('gradreq', result_info))
     dispatcher.add_handler(CommandHandler('core', core_course_list))
     dispatcher.add_handler(CommandHandler('elective', elective_course_list))
+    dispatcher.add_handler(CommandHandler("study", study))
+    dispatcher.add_handler(CommandHandler("eat", eat))
+    dispatcher.add_handler(CommandHandler("printer", printer))
 
     #dispatcher.add_handler(CommandHandler('course', course_command))
     dispatcher.add_handler(course_handler)
@@ -345,17 +348,17 @@ def map_command(update, context):
     return ConversationHandler.END
 
 
-def help_printer(update: Update, context: CallbackContext) -> None: 
+def printer(update: Update, context: CallbackContext) -> None: 
     """Send a message when the command /printer is issued."""
     bot = context.bot
     bot.send_message(chat_id=update.effective_chat.id, text='You could find the printer service in the Kowloon Tong Campaus by "https://ito.hkbu.edu.hk/services/printing-services/fup.html", feel free to use the /map command to find the location 😉')
 
-def help_eat(update: Update, context: CallbackContext) -> None: 
+def eat(update: Update, context: CallbackContext) -> None: 
     """Send a message when the command /eat is issued."""
     bot = context.bot
     bot.send_message(chat_id=update.effective_chat.id, text='There are several restaurants on campus available for students. You can find a list of them on "http://sass.hkbu.edu.hk/sass/ntt/guests/eng/Catering_Outlets.php", feel free to use the /map command to find the location 😉')
 
-def help_study(update: Update, context: CallbackContext) -> None: 
+def study(update: Update, context: CallbackContext) -> None: 
     """Send a message when the command /printer is issued."""
     bot = context.bot
     bot.send_message(chat_id=update.effective_chat.id, text='For studying, we recommend the library (AML, SCM) and the Learning Commons (AAB, FSC), where are quiet and provide the resources for academic success, feel free to use the /map command to find the location 😉')
@@ -370,18 +373,28 @@ def help_command(update: Update, context: CallbackContext) -> None:
 def add(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /add is issued."""
     try:
-        print(1)
-        #global redis1
-        print(2)
-        logging.info(context.args[0])
-        print(3)
-        msg = context.args[0] # /add keyword <-- this should store the keyword
-        print(4)
+        print("INSERT INTO tbl_enquiry VALUES('" +  str(context.args[0]) + "')")
+        cursor.execute(
+            "INSERT INTO tbl_enquiry VALUES('" +  str(context.args[0]) + "', now())")
+        sqlresult = cursor.fetchall()
+        db.commit()
 
-        #redis1.incr(msg)
-        #update.message.reply_text('You have said ' + msg + ' for ' + redis1.get(msg).decode('UTF-8') + ' times.')
+        print("Total number of rows in table: ", cursor.rowcount)
+
+        reply_message = "Student ID added. we will contact you asap"   
+        
+        if len(str(context.args[0])) < 8:
+            reply_message = "Invalid Student ID. Please Input again"   
+
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text=reply_message)
+    except pymysql.Error as e:
+        print("could not close connection error pymysql %d: %s" %
+              (e.args[0], e.args[1]))
     except (IndexError, ValueError):
-        update.message.reply_text('Usage: /add <keyword>')
+        update.message.reply_text('Usage: /add <student id>')
+    return ConversationHandler.END
+    
 
 
 # cancel
