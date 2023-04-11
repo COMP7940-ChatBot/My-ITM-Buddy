@@ -6,7 +6,6 @@ COPY requirements.txt /
 RUN pip install pip update 
 RUN pip install -r requirements.txt
 
-EXPOSE 8000
-EXPOSE 443
+EXPOSE 8080
 
 CMD python chatbot.py
