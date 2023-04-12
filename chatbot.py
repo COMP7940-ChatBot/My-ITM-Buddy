@@ -190,7 +190,7 @@ def course(update, context):
     logging.info("User %s selected /course", userid)
     user_name = update.message.from_user.first_name
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the name of course')
+        chat_id=update.effective_chat.id, text= f'Great! {user_name} ! Please input the course code')
     return course_code
 
 
@@ -203,7 +203,7 @@ def course_command(update, context):
     try:
        
         cursor.execute(
-            "SELECT * FROM tbl_course WHERE course_code<>%s order by RAND() LIMIT 1", (coursecode))
+            "SELECT * FROM tbl_course WHERE course_code = %s", (coursecode,))
         sqlresult = cursor.fetchall()
         db.commit()
 
