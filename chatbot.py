@@ -203,7 +203,7 @@ def course_command(update, context):
     try:
        
         cursor.execute(
-            "SELECT * FROM tbl_course WHERE course_code<>%s order by RAND() LIMIT 1", (coursecode))
+            "SELECT * FROM tbl_course WHERE course_code = %s", (coursecode,))
         sqlresult = cursor.fetchall()
         db.commit()
 
